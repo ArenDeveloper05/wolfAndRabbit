@@ -4,6 +4,7 @@ const arr = [[0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0], [0, 0, 
 let rabbit = {};
 let wolf = {};
 let home = {};
+let fence = {};
 
 while (JSON.stringify(rabbit) === JSON.stringify(wolf) || JSON.stringify(wolf) == JSON.stringify(home) || JSON.stringify(rabbit) == JSON.stringify(home)) {
     console.log("again")
@@ -19,14 +20,17 @@ while (JSON.stringify(rabbit) === JSON.stringify(wolf) || JSON.stringify(wolf) =
         x: Math.floor(Math.random() * (arr.length - 1)),
         y: Math.floor(Math.random() * (arr.length - 1))
     };
-
+    fence = {
+        x: Math.floor(Math.random() * (arr.length - 1)),
+        y: Math.floor(Math.random() * (arr.length - 1))
+    };
 }
 
-console.log(rabbit, wolf, home)
+console.log(rabbit, wolf, home, fence)
 
-createTrellis(arr, rabbit, wolf, home);
+createTrellis(arr, rabbit, wolf, home, fence);
 
-function createTrellis(arr, rabbit, wolf, home) {
+function createTrellis(arr, rabbit, wolf, home, fence) {
     const root = document.getElementById("root");
     for (let i = 0; i < arr.length; i++) {
         for (let j = 0; j < arr[i].length; j++) {
@@ -38,6 +42,8 @@ function createTrellis(arr, rabbit, wolf, home) {
                 cub = `<div class="cub" ><img src="./wolf.png"></div>`;
             } else if (i == home.x && j == home.y) {
                 cub = `<div class="cub" ><img src="./home.png"></div>`;
+            } else if (i == fence.x && j == fence.y) {
+                cub = `<div class="cub"><img src="./fence.png"></div>`;
             }
             else {
                 cub = `<div class="cub" ></div>`
@@ -69,8 +75,8 @@ function clearTrellis() {
 }
 
 function go(type) {
+    const oldRabbitPosition = { x: rabbit.x, y: rabbit.y };
     if (type == "left") {
-
         rabbit.y === 0 ? rabbit.y = arr[0].length - 1 : rabbit.y -= 1;
     } else if (type == "right") {
         rabbit.y === arr[0].length - 1 ? rabbit.y = 0 : rabbit.y += 1
@@ -81,6 +87,11 @@ function go(type) {
         if (type == "bottom") {
             rabbit.x === arr.length - 1 ? rabbit.x = 0 : rabbit.x += 1;
         }
+    }
+
+    if (JSON.stringify(fence) === JSON.stringify(rabbit)) {
+        rabbit.x = oldRabbitPosition.x;
+        rabbit.y = oldRabbitPosition.y;
     }
     console.log(rabbit, "nap");
 
@@ -107,16 +118,16 @@ function go(type) {
     let topIsValid = true, rightIsValid = true, bottomIsValid = true, leftIsValid = true;
 
 
-    if (JSON.stringify(topVariant) == JSON.stringify(home)) {
+    if (JSON.stringify(topVariant) === JSON.stringify(home) || JSON.stringify(topVariant) === JSON.stringify(fence)) {
         topIsValid = false;
     }
-    if (JSON.stringify(rightVariant) == JSON.stringify(home)) {
+    if (JSON.stringify(rightVariant) === JSON.stringify(home) || JSON.stringify(rightVariant) === JSON.stringify(fence)) {
         rightIsValid = false;
     }
-    if (JSON.stringify(bottomVariant) == JSON.stringify(home)) {
+    if (JSON.stringify(bottomVariant) === JSON.stringify(home) || JSON.stringify(bottomVariant) === JSON.stringify(fence)) {
         bottomIsValid = false;
     }
-    if (JSON.stringify(leftVariant) == JSON.stringify(home)) {
+    if (JSON.stringify(leftVariant) === JSON.stringify(home) || JSON.stringify(leftVariant) === JSON.stringify(fence)) {
         leftIsValid = false;
     }
     // if (arr[topVariant.x][topVariant.y]) {
@@ -174,7 +185,7 @@ function go(type) {
     let min = linesArray.reduce((prev, curr) => prev.line <= curr.line ? prev : curr);
     console.log(min, "min");
     clearTrellis();
-    createTrellis(arr, rabbit, wolf, home);
+    createTrellis(arr, rabbit, wolf, home, fence);
 
     return min.name
 }
@@ -193,7 +204,7 @@ function goWolf(type) {
         }
     }
     clearTrellis();
-    createTrellis(arr, rabbit, wolf, home);
+    createTrellis(arr, rabbit, wolf, home, fence);
 }
 
 window.addEventListener("keydown", (e) => {
